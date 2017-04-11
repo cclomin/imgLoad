@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>移动端图片上传解决方案localResizeIMG先压缩后ajax无刷新上传</title>
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width , initial-scale=1.0 , user-scalable=0 , minimum-scale=1.0 , maximum-scale=1.0" />
+<link rel="stylesheet" href="css/style.css">
+<script type='text/javascript' src='js/jquery-2.0.3.min.js'></script>
+<script type='text/javascript' src='js/LocalResizeIMG.js'></script>
+<script type='text/javascript' src='js/patch/mobileBUGFix.mini.js'></script>
+<style type="text/css">
+*{margin: 0; padding: 0; box-sizing: border-box;}
+body{font-family:"微软雅黑"}
+.uploadbtn{ display:block;height:40px; line-height:40px; color:#333; text-align:center; width:100%; background:#f2f2f2; text-decoration:none; }
+ul{ display: flex; flex-wrap: wrap; float: left;}
+ul li{list-style-type: none; width: 80px; height: 80px;margin: 0 10px 10px 0; border: 1px solid rgba(0,0,0,.5); background-size: cover;}
+/*.imglist{min-height:200px;margin:10px;}*/
+.imglist img{ width:80px; height: 80px;}
+.weui-uploader__input-box:before, .weui-uploader__input-box:after {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    background-color: #D9D9D9;
+    }
+    .weui-uploader__input-box:before {
+    width: 2px;
+    height: 39.5px;
+}
+.weui-uploader__input-box:after {
+    width: 39.5px;
+    height: 2px;
+    background: url();
+}
+.uploadbtn{
+	position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.weui-uploader__input-box {
+    float: left;
+    position: relative;
+    margin-right: 9px;
+    margin-bottom: 9px;
+    width: 77px;
+    height: 77px;
+    border: 1px solid #D9D9D9;
+}
+</style>
+</head>
+<body>
+<div style="width:100%;margin:10px auto; border:solid 1px #ddd; overflow:hidden; ">
+  <input type="file" id="uploadphoto" name="uploadfile" value="请点击上传图片"   style="display:none;" /> 
+  <ul class="imglist"></ul>
+  <div class="weui-uploader__input-box">
+  <a href="javascript:void(0);" onclick="uploadphoto.click()" class="uploadbtn">点击上传文件</a>
+  </div>
+</div>
+	<script type="text/javascript">
+		$(document).ready(function(e) {
+		   	$('#uploadphoto').localResizeIMG({
+		      	width: 400,
+		      	quality: 1,
+		      	success: function (result) {  
+				  	var submitData={
+						base64_string:result.clearBase64, 
+					}; 
+					$.ajax({
+					   	type: "POST",
+					   	url: "upload.php",
+					   	data: submitData,
+					   	dataType:"json",
+					   	success: function(data){
+						 	if (0 == data.status) {
+								// alert(data.content);
+								return false;
+						 	}else{
+								// alert(data.content);
+								var attstr= '<li style="background: url(' + data.url +'); background-size: cover; background-position: center center;"></li>'; 
+								$(".imglist").append(attstr);
+								return false;
+						 	}
+					   	}, 
+						complete :function(XMLHttpRequest, textStatus){
+						},
+						error:function(XMLHttpRequest, textStatus, errorThrown){ //上传失败 
+						   	alert(XMLHttpRequest.status);
+						   	alert(XMLHttpRequest.readyState);
+						   	alert(textStatus);
+						}
+					}); 
+		      	}
+		  	});
+		}); 
+	</script>
+</body>
+</html>
